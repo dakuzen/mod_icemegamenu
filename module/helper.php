@@ -1,17 +1,17 @@
-<?php 
+<?php
 /**
  * IceMegaMenu Extension for Joomla 3.0 By IceTheme
- * 
- * 
+ *
+ *
  * @copyright	Copyright (C) 2008 - 2012 IceTheme.com. All rights reserved.
  * @license		GNU General Public License version 2
- * 
+ *
  * @Website 	http://www.icetheme.com/Joomla-Extensions/icemegamenu.html
  * @Support 	http://www.icetheme.com/Forums/IceMegaMenu/
  *
  */
- 
- 
+
+
 /* no direct access*/
 defined('_JEXEC') or die('Restricted access');
 
@@ -24,11 +24,11 @@ require_once("libs/menucore.php");
 
 class modIceMegamenuHelper
 {
-	
+
 	var $_params 	= null;
 	var $moduleid	= 0;
 	var $_module 	= null;
-	
+
 	public function __construct($module = null, $params = array())
 	{
 		if(!empty($module))
@@ -39,7 +39,7 @@ class modIceMegamenuHelper
 		}
 		$this->_params = $params;
 	}
-	
+
 	public static function buildXML($params)
 	{
 		$menu 	= new IceMenuTree($params);
@@ -47,23 +47,23 @@ class modIceMegamenuHelper
 		$items = $app->getMenu();
         $start  = $params->get('startLevel');
         $end    = $params->get('endLevel');
-        $sChild = $params->get('showAllChildren');         
-        
+        $sChild = $params->get('showAllChildren');
+
         if($end<$start && $end!=0){ return ""; }
-            
-        if(!$sChild){ $end = $start;}  
-          
+
+        if(!$sChild){ $end = $start;}
+
 		// Get Menu Items
 		$rows = $items->getItems('menutype', $params->get('menutype'));
         foreach($rows as $key=>$val)
-        {             
+        {
             if(!(($end!=0 && $rows[$key]->level>=$start && $rows[$key]->level<=$end) ||($end==0 && $rows[$key]->level>=$start)))
             {
                 unset($rows[$key]);
             }
-        }         
+        }
 		$maxdepth = $params->get('maxdepth',10);
-		
+
 		// Build Menu Tree root down(orphan proof - child might have lower id than parent)
 		$user_temp 	= JFactory::getUser();
 		$user 	= &$user_temp;
@@ -72,8 +72,8 @@ class modIceMegamenuHelper
 		$last 	= null;
 		$unresolved = array();
 		$vertical_direction = $params->get("vertical_direction", "left");
-		
-		// pop the first item until the array is empty if there is any item		
+
+		// pop the first item until the array is empty if there is any item
 		if(is_array($rows))
 		{
 			while(count($rows) && !is_null($row = array_shift($rows)))
@@ -109,9 +109,14 @@ class modIceMegamenuHelper
 
 		if(!isset($xmls[$type]))
 		{
-			$cache_temp 			= JFactory::getCache('mod_icemegamenu');
-			$cache 			= &$cache_temp;
-			$string 		= $cache->call(array('modIceMegamenuHelper', 'buildXML'), $params);
+      if ($params->get('cache')) {
+        $cache  = JFactory::getCache('mod_icemegamenu');
+        $cache->setLifeTime($params->get('cache_time', (JFactory::getConfig()->get('cachetime') * 60)));
+        $string = $cache->call(array('modIceMegamenuHelper', 'buildXML'), $params);
+      }
+      else {
+        $string = call_user_func(array('modIceMegamenuHelper', 'buildXML'), $params);
+      }
 			$xmls[$type] 	= $string;
 		}
 		// Get document
@@ -126,7 +131,7 @@ class modIceMegamenuHelper
 		$end	= $params->get('endLevel');
 		$sChild	= $params->get('showAllChildren');
 		$path	= array();
-		
+
 		// Get subtree
 		if($doc && is_callable($decorator))
 		{
@@ -136,12 +141,12 @@ class modIceMegamenuHelper
 	}
 
 	function render(&$params, $callback)
-	{				
+	{
 		switch($params->get('menu_style', 'list'))
 		{
 			case 'list_flat' :
 				break;
-				
+
 			case 'horiz_flat' :
 				break;
 
@@ -155,7 +160,7 @@ class modIceMegamenuHelper
 				{
 					$class = $params->get('class_sfx');
 					$xml->addAttribute('class', 'icemegamenu'.$class);
-					
+
 					if($tagId = $params->get('tag_id'))
 					{
 						$xml->addAttribute('id', $tagId);
@@ -168,13 +173,13 @@ class modIceMegamenuHelper
 				break;
 		}
 	}
-	
+
 	/**
 	 * check K2 Existed ?
 	 */
 	public static function isK2Existed()
 	{
-		return is_file(JPATH_SITE.DS.  "components" . DS . "com_k2" . DS . "k2.php");	
+		return is_file(JPATH_SITE.DS.  "components" . DS . "com_k2" . DS . "k2.php");
 	}
 	/**
 	 *  check the folder is existed, if not make a directory and set permission is 755
@@ -188,21 +193,21 @@ class modIceMegamenuHelper
 	{
 		$folders = explode('/', ($path));
 		$tmppath =  JPATH_SITE.DS.'images'.DS.'icethumbs'.DS;
-		
+
 		if(!file_exists($tmppath))
 		{
 			JFolder::create($tmppath, 0755);
-		} 
+		}
 		for($i = 0; $i < count($folders) - 1; $i ++)
 		{
 			if(! file_exists($tmppath . $folders [$i]) && ! JFolder::create($tmppath . $folders [$i], 0755))
 			{
 				return false;
-			}	
+			}
 			$tmppath = $tmppath . $folders [$i] . DS;
-		}		
+		}
 		return true;
-	}	
+	}
 	/**
 	 *  check the folder is existed, if not make a directory and set permission is 755
 	 *
@@ -213,29 +218,29 @@ class modIceMegamenuHelper
 	 */
 	public static function renderThumb($path, $width=100, $height=100, $title='', $isThumb=true)
 	{
-		
+
 		if($isThumb&& $path)
 		{
 			$path 		= str_replace(JURI::base(), '', $path);
 			$imagSource = JPATH_SITE.DS. str_replace('/', DS,  $path);
-			
+
 			if(file_exists($imagSource))
 			{
 				$path =  $width."x".$height.'/'.$path;
 				$thumbPath = JPATH_SITE.DS.'images'.DS.'icethumbs'.DS. str_replace('/', DS,  $path);
-				
+
 				if(!file_exists($thumbPath))
 				{
-					$thumb = PhpThumbFactory::create($imagSource);  
+					$thumb = PhpThumbFactory::create($imagSource);
 					if(!self::makeDir($path))
 					{
 							return '';
-					}		
+					}
 					$thumb->adaptiveResize($width, $height);
-					$thumb->save($thumbPath); 
+					$thumb->save($thumbPath);
 				}
 				$path = JURI::base().'images/icethumbs/'.$path;
-			} 
+			}
 		}
 		return $path;
 	}
@@ -260,7 +265,7 @@ class modIceMegamenuHelper
 	}
 	/**
 	 * load css - javascript file.
-	 * 
+	 *
 	 * @param JParameter $params;
 	 * @param JModule $module
 	 * @return void.
@@ -270,10 +275,10 @@ class modIceMegamenuHelper
 		global $app;
 		$app 			= JFactory::getApplication();
 		$theme_style 	= $params->get("theme_style","default");
-		
+
 		$enable_bootrap = $params->get("enable_bootrap", 0);
 		$resizable_menu = $params->get("resizable_menu", 0);
-		
+
 		$doc = JFactory::getDocument();
 		$document = &$doc;
 		if($enable_bootrap == 1){
@@ -281,8 +286,8 @@ class modIceMegamenuHelper
 				$document->addStyleSheet(JURI::base()."media/jui/css/bootstrap-responsive.css");
 			$document->addScript(JURI::base()."media/jui/js/bootstrap.min.js");
 		}
-		
-		
+
+
 		if (
 			(!file_exists(JPATH_ROOT.'/templates/'.$app->getTemplate().'/less/iceslideshow.less'))
 			|| ( $app->getTemplate() == "it_therestaurant2")
@@ -292,15 +297,15 @@ class modIceMegamenuHelper
 			|| ( $app->getTemplate() == "it_cinema3")
 			)
 		 {
-			
+
 			if(!defined("MOD_ICEMEGAMENU"))
 			{
-	
+
 				$css = "templates/".$app->getTemplate()."/html/".$module->module."/css/".$theme_style."_icemegamenu.css";
 				$css2 = "templates/".$app->getTemplate()."/html/".$module->module."/css/".$theme_style."_icemegamenu-ie.css";
 				if($resizable_menu == 1){
 					$css3 = "templates/".$app->getTemplate()."/html/".$module->module."/css/".$theme_style."_icemegamenu-reponsive.css";
-				}	
+				}
 				if(is_file($css)) {
 					$document->addStyleSheet($css);
 				} else {
@@ -312,7 +317,7 @@ class modIceMegamenuHelper
 				} else {
 					if($resizable_menu == 1){
 						$css3 = JURI::base().'modules/'.$module->module.'/themes/'.$params->get('theme_style','default').'/css/'.$theme_style.'_icemegamenu-reponsive.css';
-					}	
+					}
 					$document->addStyleSheet($css3);
 				}
 				define("MOD_ICEMEGAMENU", 1);
@@ -322,7 +327,7 @@ class modIceMegamenuHelper
 
 	/**
 	 * get a subtring with the max length setting.
-	 * 
+	 *
 	 * @param string $text;
 	 * @param int $length limit characters showing;
 	 * @param string $replacer;
@@ -343,7 +348,7 @@ if(!defined('modIceMegaMenuXMLCallbackDefined'))
 		$menu	= &JSite::getMenu();
 		$active	= $menu->getActive();
 		$path	= isset($active) ? array_reverse($active->tree) : null;
-	
+
 		if(($args['end']) &&($node->attributes('level') >= $args['end']))
 		{
 			$children = $node->children();
@@ -366,12 +371,12 @@ if(!defined('modIceMegaMenuXMLCallbackDefined'))
 				}
 			}
 		}
-	
+
 		if(($node->name() == 'li') && isset($node->ul))
 		{
 			$node->addAttribute('class', 'parent');
 		}
-	
+
 		if(isset($path) &&(in_array($node->attributes('id'), $path) || in_array($node->attributes('rel'), $path)))
 		{
 			if($node->attributes('class'))
@@ -397,7 +402,7 @@ if(!defined('modIceMegaMenuXMLCallbackDefined'))
 				}
 			}
 		}
-	
+
 		if(($node->name() == 'li') &&($id = $node->attributes('id')))
 		{
 			if($node->attributes('class'))
@@ -409,7 +414,7 @@ if(!defined('modIceMegaMenuXMLCallbackDefined'))
 				$node->addAttribute('class', 'item'.$id);
 			}
 		}
-	
+
 		if(isset($path) && $node->attributes('id') == $path[0])
 		{
 			$node->addAttribute('id', 'current');
