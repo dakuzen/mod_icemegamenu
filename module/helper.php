@@ -40,11 +40,10 @@ class modIceMegamenuHelper
 		$this->_params = $params;
 	}
 
-	public static function buildXML($params)
+	function buildXML($params)
 	{
 		$menu 	= new IceMenuTree($params);
-		$app = JFactory::getApplication();
-		$items = $app->getMenu();
+		$items 	= &JSite::getMenu();
         $start  = $params->get('startLevel');
         $end    = $params->get('endLevel');
         $sChild = $params->get('showAllChildren');
@@ -65,13 +64,11 @@ class modIceMegamenuHelper
 		$maxdepth = $params->get('maxdepth',10);
 
 		// Build Menu Tree root down(orphan proof - child might have lower id than parent)
-		$user_temp 	= JFactory::getUser();
-		$user 	= &$user_temp;
+		$user 	= &JFactory::getUser();
 		$ids 	= array();
 		$ids[1] = true;
 		$last 	= null;
 		$unresolved = array();
-		$vertical_direction = $params->get("vertical_direction", "left");
 
 		// pop the first item until the array is empty if there is any item
 		if(is_array($rows))
@@ -100,7 +97,7 @@ class modIceMegamenuHelper
 				}
 			}
 		}
-		return $menu->toXML($vertical_direction);
+		return $menu->toXML();
 	}
 
 	function &getXML($type, &$params, $decorator)
@@ -124,9 +121,8 @@ class modIceMegamenuHelper
 		$xml = new JSimpleXML;
 		$xml->loadString($xmls[$type]);
 		$doc = &$xml->document;
-		$app = JFactory::getApplication();
-		$menu = $app->getMenu();
-		$active = ($menu->getActive()) ? $menu->getActive() : $menu->getDefault();
+		$menu	= &JSite::getMenu();
+		$active	= $menu->getActive();
 		$start	= $params->get('startLevel');
 		$end	= $params->get('endLevel');
 		$sChild	= $params->get('showAllChildren');
@@ -279,8 +275,7 @@ class modIceMegamenuHelper
 		$enable_bootrap = $params->get("enable_bootrap", 0);
 		$resizable_menu = $params->get("resizable_menu", 0);
 
-		$doc = JFactory::getDocument();
-		$document = &$doc;
+		$document = &JFactory::getDocument();
 		if($enable_bootrap == 1){
 			$document->addStyleSheet(JURI::base()."media/jui/css/bootstrap.css");
 				$document->addStyleSheet(JURI::base()."media/jui/css/bootstrap-responsive.css");

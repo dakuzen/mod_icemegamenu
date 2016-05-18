@@ -67,8 +67,7 @@ class IceModuleHelper
 		$content="";
 		if(!empty($list_modules))
 		{   
-			$doc	= JFactory::getDocument();
-			$document	= &$doc;
+			$document	= &JFactory::getDocument();
 			$renderer	= $document->loadRenderer('module'); 
 			ob_start();     
             if(!empty($list_modules))
@@ -91,7 +90,7 @@ class IceModuleHelper
 					$cols_width = 'auto';
 				}
                     
-                echo '<div class="icemega_cover_module" style="width:'.$width.'">';
+                echo '<div class="icemega_cover_module" style="width:'.$width.'px">';
                     for($i=0; $i<$cols; $i++)
                     {
 						
@@ -115,7 +114,7 @@ class IceModuleHelper
 						
                             if(isset($module) && @$module->id)
 							{
-                                 echo '<div class="icemega_modulewrap '.json_decode($module->params)->moduleclass_sfx.'" style="'.$style.'">';                                
+                                 echo '<div class="icemega_modulewrap" style="'.$style.'">';                                
                                  if($module->showtitle)
                                  {
                                     echo '<span class="iceModuleTile">'.$module->title.'</span>';
@@ -142,10 +141,8 @@ class IceModuleHelper
 	{
 		global $mainframe;
 
-		$user_temp	= JFactory::getUser();
-		$user	=& $user_temp;
-		$db_temp		= JFactory::getDBO();
-		$db		=& $db_temp;
+		$user	=& JFactory::getUser();
+		$db		=& JFactory::getDBO();
 
 		$aid	= $user->get('aid', 0);
 

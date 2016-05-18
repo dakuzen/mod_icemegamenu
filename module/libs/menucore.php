@@ -73,8 +73,7 @@ class IceMenuTree extends JTree
 		$itemId = JRequest::getInt("Itemid",0);
 		if(!empty($itemId))
 		{
-			$db_temp 	= JFactory::getDBO();
-			$db 	= &$db_temp;
+			$db 	= &JFactory::getDBO();
 			$parent = $itemId;
 			while($parent >0)
 			{
@@ -124,7 +123,7 @@ class IceMenuTree extends JTree
 	}
 
 
-	function toXML($vertical_direction)
+	function toXML()
 	{
 		
 		// Initialize variables
@@ -134,13 +133,13 @@ class IceMenuTree extends JTree
 		while($this->_current->hasChildren())
 		{
 			
-			$this->_buffer .= "<div>\n<div class=\"ice-megamenu-toggle\">\n<a data-toggle=\"collapse\" data-target=\".nav-collapse\">".JText::_('ICE_MAIN_MENU')."</a>\n</div>\n<div class=\"nav-collapse icemegamenu collapse ".$vertical_direction." \">\n<ul id=\"icemegamenu\" class=\"meganizr mzr-slide mzr-responsive\">\n";
+			$this->_buffer .= '<div><div class="ice-megamenu-toggle"><a data-toggle="collapse" data-target=".nav-collapse">'.JText::_("ICE_MAIN_MENU").'</a></div><div class="nav-collapse icemegamenu collapse '.$vertical_direction.' "><ul id="icemegamenu" class="meganizr mzr-slide mzr-responsive">';
 			foreach($this->_current->getChildren() as $child)
 			{
 				$this->_current = & $child;
 				$this->_getLevelXML(0);
 			}
-			$this->_buffer .= "</ul>\n</div>\n</div>\n";
+			$this->_buffer .= '</ul></div></div>';
 		}
 		if($this->_buffer == '') { $this->_buffer = '<ul />'; }
 		return $this->_buffer;
@@ -150,8 +149,8 @@ class IceMenuTree extends JTree
 	{
 		$submenu_type 	= $this->_current->getParam("subtype", "menu");
         $cols 			= $this->_current->getParam("cols", 1);
-        $colWidth 	= $this->_current->getParam("colwidth", '280px');
-        $width 		= $this->_current->getParam("width", '280px');
+        $colWidth 	= $this->_current->getParam("colwidth", '280');
+        $width 		= $this->_current->getParam("width", '280');
 		
 		$content = "";
 		
@@ -164,14 +163,14 @@ class IceMenuTree extends JTree
 				require_once(dirname(__FILE__).DS."module_helper.php");
 				$modHelper = new IceModuleHelper();
 				$content = $modHelper->getContentByModule($this->_current->getParam("modules",""), $cols, $colWidth, $width, $this->_current->title);
+				$content = str_replace(array("\r\n", "\r"), "\n",$content);
+				$content = str_replace("\n", "",$content);
 				$content = '<![CDATA['.$content.']]>';
 			break;
 			case "pos":
 				require_once(dirname(__FILE__).DS."module_helper.php");
 				$modHelper = new IceModuleHelper();
 				$content = $modHelper->getContentByPosition($this->_current->getParam("positions",""), $cols, $colWidth, $width, $this->_current->title);
-			case "anch":
-				$content = $this->_current->link;
 			break;
 		}
 		return $content;
@@ -185,6 +184,10 @@ class IceMenuTree extends JTree
 		$imgalign	= 'align="left"';
 		$name 		= "";
 		$name 		= '<span class="icemega_title icemodule_header"><![CDATA['.$item->title.']]></span>';
+		if($iParams->get('menu_anchor_css'))
+		{ 
+		   $document->addStyleSheet($iParams->get('menu_anchor_css')); 
+		}
 		$image = "";
 		if($iParams->get('menu_image'))
 		{
@@ -222,38 +225,38 @@ class IceMenuTree extends JTree
 			{
 				if(isset($this->_level_arr[$parentId]['colsWidth'][($this->_level_arr[$parentId]['countcols'])]) && $this->_level_arr[$parentId]['colsWidth'][($this->_level_arr[$parentId]['countcols'])]!='auto')
 				{                     
-					$divWidth = $this->_level_arr[$parentId]['colsWidth'][$this->_level_arr[$parentId]['countcols']];
+					$divWidth = $this->_level_arr[$parentId]['colsWidth'][$this->_level_arr[$parentId]['countcols']]."px";
 				}
 				else $divWidth= $this->_default_width;
 			}
 			else
 			{
-				$divWidth=($this->_level_arr[$parentId]['colsWidth']=='auto')?$this->_default_width:$this->_level_arr[$parentId]['colsWidth'];
+				$divWidth=($this->_level_arr[$parentId]['colsWidth']=='auto')?$this->_default_width:intval($this->_level_arr[$parentId]['colsWidth'])."px";
 			}
             
             if($this->_level_arr[$parentId]['countcols']==1)
             {
-                $this->_buffer .= "<li>\n<div style=\"float:left;width:".$divWidth."\" class=\"iceCols\">\n<ul>\n";
+                $this->_buffer .= '<li><div style="float:left;width:'.$divWidth.'" class="iceCols"><ul>';
             } 
             else
             {    
 				if(isset($this->_level_arr[$parentId]['arr_cols']['same']) || isset($this->_level_arr[$parentId]['arr_cols']['hasCols'])) 
 				{                                  
-					$this->_buffer .= "<div style=\"float:left;width".$divWidth."\" class=\"iceCols\">\n<ul>\n"; 
+					$this->_buffer .= '<div style="float:left;width:'.$divWidth.'" class="iceCols"><ul>'; 
 				}
 				else
 				{   
-					if(array_key_exists($this->_level_arr[$parentId]['countcols'],$this->_level_arr[$parentId]['arr_cols']))
+					if(array_key_exists(intval($this->_level_arr[$parentId]['countcols']),$this->_level_arr[$parentId]['arr_cols']))
 					{    
 						if(is_array($this->_level_arr[$parentId]['colsWidth']))   
 						{                               
 							if(isset($this->_level_arr[$parentId]['colsWidth'][$this->_level_arr[$parentId]['countcols']]) && $this->_level_arr[$parentId]['colsWidth'][($this->_level_arr[$parentId]['countcols'])]!='auto')
 							{                     
-								$divWidth = $this->_level_arr[$parentId]['colsWidth'][$this->_level_arr[$parentId]['countcols']];
+								$divWidth = $this->_level_arr[$parentId]['colsWidth'][$this->_level_arr[$parentId]['countcols']]."px";
 							} else $divWidth=$this->_default_width;
-						} else { $divWidth=($this->_level_arr[$parentId]['colsWidth']=='auto')?$this->_default_width:$this->_level_arr[$parentId]['colsWidth']; }
+						} else { $divWidth=($this->_level_arr[$parentId]['colsWidth']=='auto')?$this->_default_width:intval($this->_level_arr[$parentId]['colsWidth'])."px"; }
 				
-						$this->_buffer .= "<div  style=\"float:left;width:".$divWidth."\" class=\"iceCols\">\n<ul>\n"; 
+						$this->_buffer .= '<div  style="float:left;width:'.$divWidth.'" class="iceCols"><ul>'; 
 					}  
 				}
             }       
@@ -272,17 +275,16 @@ class IceMenuTree extends JTree
 	   if($this->_current->hasChildren()) {$ClassStyleLi = $ClassStyleLi." mzr-drop parent";}
        
        $active_class = "";
-       if (($this->_current->id == $this->_currentItemId) || $this->_current->id == JRequest::getVar('Itemid') || (isset($this->_current->type) && $this->_current->type == 'alias' && ($this->_current->params->get('aliasoptions') == $this->_currentItemId) || $this->_current->params->get('aliasoptions') == JRequest::getVar('Itemid')))
+       if($this->_current->id == $this->_currentItemId || $this->_current->id == JRequest::getVar('Itemid'))
             $active_class = " active";
         
-		$this->_buffer .= "<li id=\"iceMenu_".$this->_current->id."\"".$rel." class=\"".$ClassStyleLi.$active_class." ".$this->_current->params->get('menu-anchor_css')."\">\n";
+		$this->_buffer .= '<li id="iceMenu_'.$this->_current->id.'"'.$rel.' class="'.$ClassStyleLi.$active_class.'">';
                                                                   
         $width_parent       = $this->_current->getParam("width",'auto');
         $cols_width_parent  = $this->_current->getParam("colwidth",'auto');    
         $cols_parent        = $this->_current->getParam("cols",1);
            
-		$doc = JFactory::getDocument();
-		$document =&$doc;
+		$document =& JFactory::getDocument();
         
         $submenu_type = $this->_current->getParam("subtype","menu");                   
 		// Append item data
@@ -298,15 +300,16 @@ class IceMenuTree extends JTree
 			if($this->_current->getParam("subtype","") == "mod" || $this->_current->getParam("subtype","") == "menu"){
 				$item_class = "icemodules";
 			}
-            $width = $this->_current->getParam("width", '280px');   
+            $width = $this->_current->getParam("width", '280');   
 			$cols = $this->_current->getParam("cols",1);
-			$cols_width = $this->_current->getParam("colwidth", '280px');				
+			$cols_width = $this->_current->getParam("colwidth", '280');				
 			                        
 			$ice_mega_class = $this->_current->getParam("class","");
             
             $classStyle = "icesubMenu";
             if($depth==1) $classStyle = "icesubMenu";
 			$classStyle .=" ".$item_class;
+            $width =($width == 'auto') ? 'auto' : intval($width).'px';
 
 			$this->_buffer .= '<ul class="'.$classStyle.' sub_level_'.$depth.'" style="width:'.$width.'">';
 			
@@ -315,7 +318,7 @@ class IceMenuTree extends JTree
             $cols_width = explode(",",$cols_width_parent);
             if(!(count($cols_width)>1))
 			{   
-                $cols_width = $cols_width[0];
+                $cols_width = intval($cols_width[0]);
                 if($cols_width==0) 
                 {    
                     if($width_parent=='auto')
@@ -347,7 +350,7 @@ class IceMenuTree extends JTree
 				   if(($i*$eachCols+1)<$countChild ||($i)*$eachCols<$countChild){ 
 						if($i==0){
 						   
-							$arr_cols[($i*$eachCols)+1] = ($i+1)*$eachCols; 
+							$arr_cols[($i*$eachCols)+1] = intval(($i+1)*$eachCols); 
 							$endCount = $countChild - $eachCols; 
 							$start = $eachCols;
 							 if(is_array($cols_width) && isset($cols_width[$keyCols]))
@@ -360,7 +363,7 @@ class IceMenuTree extends JTree
 							if((($cols_parent-$i) ==($endCount)))
 							{ 
 								++$start;
-								$arr_cols[$start] = $start; $endCount--;
+								$arr_cols[$start] = intval($start); $endCount--;
 								if(is_array($cols_width) && isset($cols_width[$keyCols]))
 								{
 									$cols_width_final[$start] =  $cols_width[$keyCols];
@@ -371,7 +374,7 @@ class IceMenuTree extends JTree
 							{ 
 								if(($i+1)*$eachCols>=$countChild)
 								{                     
-								  $arr_cols[($i*$eachCols)+1] = $countChild;
+								  $arr_cols[($i*$eachCols)+1] = intval($countChild);
 								   if(is_array($cols_width) && isset($cols_width[$keyCols]))
 									{
 										$cols_width_final[($i*$eachCols)+1] =  $cols_width[$keyCols];
@@ -380,7 +383,7 @@ class IceMenuTree extends JTree
 								}
 								else
 								{  
-								  $arr_cols[($i*$eachCols)+1] = ($i+1)*$eachCols; 
+								  $arr_cols[($i*$eachCols)+1] = intval(($i+1)*$eachCols); 
 								   if(is_array($cols_width) && isset($cols_width[$keyCols]))
 									{
 										$cols_width_final[($i*$eachCols)+1] =  $cols_width[$keyCols];
@@ -391,7 +394,7 @@ class IceMenuTree extends JTree
 						}    
 				   }
 				   else if(($i*$eachCols+1)==$countChild ||($i+1)*$eachCols>=$countChild){ 
-						$arr_cols[$countChild] = $countChild; 
+						$arr_cols[$countChild] = intval($countChild); 
 						 if(is_array($cols_width) && isset($cols_width[$keyCols]))
 						{
 							$cols_width_final[$countChild] =  $cols_width[$keyCols];
@@ -469,23 +472,23 @@ class IceMenuTree extends JTree
 		}
 		            
 		// Finish the item
-		$this->_buffer .= "</li>\n";
+		$this->_buffer .= '</li>';
        
        	if($colsParent){ 
              if(isset($this->_level_arr[$parentId]['arr_cols']['same'])) 
             {                                          
-                $this->_buffer .= "</ul>\n</div>\n"; 
+                $this->_buffer .= "</ul></div>"; 
             }
             else
             {      
-                if(array_search($this->_level_arr[$parentId]['countcols'],$this->_level_arr[$parentId]['arr_cols']))
+                if(array_search(intval($this->_level_arr[$parentId]['countcols']),$this->_level_arr[$parentId]['arr_cols']))
                 {
-                     $this->_buffer .= "</ul>\n</div>\n";
+                     $this->_buffer .= "</ul></div>";
                 }   
             }
                 
             if($this->_level_arr[$parentId]['countcols']==$this->_level_arr[$parentId]['countChild']) 
-                $this->_buffer .= "</li>\n";       
+                $this->_buffer .= "</li>";       
        }
 	}
 
@@ -516,6 +519,7 @@ class IceMenuTree extends JTree
 		}
 		$iParams = new JRegistry;
 		$iParams->loadString($tmp->params);
+		if($iParams->get('menu-anchor_css',"")) JHTML::stylesheet('', $iParams->get('menu-anchor_css',""));
   
 		if($params->get('menu_images') && $iParams->get('menu_image') && $iParams->get('menu_image') != -1) {
 			switch($params->get('menu_images_align', 0)){
@@ -531,6 +535,9 @@ class IceMenuTree extends JTree
 				$imgalign='';
 				break;
 			}
+			if($iParams->get('menu_anchor_css')) { 
+                $document->addStyleSheet($iParams->get('menu_anchor_css')); 
+                }
                 $image = "";
                 if($iParams->get('menu_image')){
                 $image = '<img src="'.JURI::base(true)."/".$iParams->get('menu_image').'" '.$imgalign.' alt="'.$item->alias.'" />';
@@ -545,18 +552,18 @@ class IceMenuTree extends JTree
 			$tmp->name .='<span class="icemega_desc">'.$iParams->get("icemega_subtitle","").'</span>';
 		}
 		
-		$tmp->anchor = "";
 		switch($tmp->type)
 		{
 			case 'separator' :
-
-				$tmp->url = "";
+				//return '<span class="separator">'.$image.$tmp->name.'</span>';
 				
-				if($iParams->get("icemega_subtype") == 'anch') {
-					$tmp->url = $iParams->get('icemega_anchorsmenuitem') == $this->_currentItemId ? '#'.$tmp->alias: 'index.php?Itemid='.$iParams->get('icemega_anchorsmenuitem').'#'.$tmp->alias;
-					$tmp->anchor = ' data-anchor="'.$iParams->get('icemega_anchors').'"';
+				if($iParams->get("icemega_subtype") == 'mod' || $iParams->get("icemega_subtype") == 'pos') {
+					//$text  = 'window.addEvent("load", function(){if($(\'item-'.$tmp->id.'\') != null)$(\'item-'.$tmp->id.'\').setStyle(\'display\', \'none\')});';
+					//$document = &JFactory::getDocument();
+					//$document->addScriptDeclaration($text);
 				}
 				
+				$tmp->url = "";
 				break;
 
 			case 'url' :
@@ -565,37 +572,19 @@ class IceMenuTree extends JTree
 				} else {
 					$tmp->url = $tmp->link;
 				}
-
-				if($iParams->get("icemega_subtype") == 'anch') {
-					$tmp->url = $iParams->get('icemega_anchorsmenuitem') == $this->_currentItemId ? '#'.$tmp->alias: 'index.php?Itemid='.$iParams->get('icemega_anchorsmenuitem').'#'.$tmp->alias;
-					$tmp->anchor = ' data-anchor="'.$iParams->get('icemega_anchors').'"';
-				}
-
 				break;
 			case 'alias':
-
-				$tmp->url = 'index.php?Itemid='.$iParams->get('aliasoptions');
-
-				if($iParams->get("icemega_subtype") == 'anch') {
-					$tmp->url = $iParams->get('icemega_anchorsmenuitem') == $this->_currentItemId ? '#'.$tmp->alias: 'index.php?Itemid='.$iParams->get('icemega_anchorsmenuitem').'#'.$tmp->alias;
-					$tmp->anchor = ' data-anchor="'.$iParams->get('icemega_anchors').'"';
-				}
+				$tmp->url = 'index.php?Itemid='.$tmp->params->get('aliasoptions');
 				break;
 			default :
 				$router = JSite::getRouter();
 				$tmp->url = $router->getMode() == JROUTER_MODE_SEF ? 'index.php?Itemid='.$tmp->id : $tmp->link.'&Itemid='.$tmp->id;
-				if($iParams->get("icemega_subtype") == 'anch') {
-					if($this->_currentItemId == $iParams->get('icemega_anchorsmenuitem')){
-						$tmp->url = '#'.$tmp->alias;
-						$tmp->anchor = ' data-anchor="'.$iParams->get('icemega_anchors').'"';
-					}
-				}
 				break;
 		}
-        $myClass = "iceMenuTitle "; 
+        $myClass = "iceMenuTitle"; 
         if($item->level==1)
         {
-            $myClass = "iceMenuTitle ";
+            $myClass = "iceMenuTitle";
         }
         
 		// Print a link if it exists
@@ -616,11 +605,11 @@ class IceMenuTree extends JTree
 				default:
 				case 0:
 					// _top
-					$data = "<a href=\"".$tmp->url."\" class=\"".$active_class." ".$myClass."\"".$tmp->anchor.">".$image.$tmp->name."</a>\n";
+					$data = '<a href="'.$tmp->url.'" class="'.$active_class.' '.$myClass.'">'.$image.$tmp->name.'</a>';
 					break;
 				case 1:
 					// _blank
-					$data = "<a href=\"".$tmp->url."\" target=\"_blank\" class=\"".$active_class." ".$myClass."\"".$tmp->anchor.">".$image.$tmp->name."</a>\n";
+					$data = '<a href="'.$tmp->url.'" target="_blank"  class="'.$active_class.' '.$myClass.'">'.$image.$tmp->name.'</a>';
 					break;
 				case 2:
 					// window.open
@@ -628,11 +617,11 @@ class IceMenuTree extends JTree
 
 					// hrm...this is a bit dickey
 					$link = str_replace('index.php', 'index2.php', $tmp->url);
-					$data = "<a href=\"".$link."\" onclick=\"window.open(this.href,'targetWindow','".$attribs."');return false;\"  class=\"".$active_class." ".$myClass."\"".$tmp->anchor.">".$image.$tmp->name."</a>\n";
+					$data = '<a href="'.$link.'" onclick="window.open(this.href,\'targetWindow\',\''.$attribs.'\');return false;"  class="'.$active_class.' '.$myClass.'">'.$image.$tmp->name.'</a>';
 					break;
 			}
 		} else {
-			$data = "<a  class=\"".$active_class." ".$myClass."\"".$tmp->anchor.">".$image.$tmp->name."</a>\n";
+			$data = '<a  class="'.$active_class.' '.$myClass.'">'.$image.$tmp->name.'</a>';
 		}
 		
 		return $data;

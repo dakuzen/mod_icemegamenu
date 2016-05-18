@@ -63,6 +63,7 @@ $vertical_direction = $params->get("vertical_direction", "left");
 $layoutModulePath 	= JModuleHelper::getLayoutPath($module->module);
 $icemegamenu 		= new modIceMegamenuHelper($module, $params);
 require($layoutModulePath);
+
 ?>
 
 
