@@ -20,40 +20,41 @@
 		  <folder module="mod_icemegamenu">assets</folder>
          <folder module="mod_icemegamenu">tmpl</folder>
 		 <folder module="mod_icemegamenu">themes</folder>
+     <folder module="mod_icemegamenu">languages</folder>
     </files>
 	<languages>
 		<language tag="en-GB">languages/en-GB/en-GB.mod_icemegamenu.ini</language>
 	</languages>
 	<help key="JHELP_EXTENSIONS_MODULE_MANAGER_MEGA_MENU" />
 <config>
-	<fields name="params"> 
+	<fields name="params">
 	<fieldset name="basic" label="ICEMEGAMENU_LABEL" addfieldpath="/modules/mod_icemegamenu/libs/elements">
-	
-		
+
+
 	   <field name="theme_style" type="folderlist" hide_none="true" label="SELECT_THEME" description="SELECT_THEME_DESC" default=""  directory="modules/mod_icemegamenu/themes" filter="" exclude="item" stripext="" />
-		
+
 		<field name="vertical_direction" type="list" default="1" label="Dropdown Direction (vertical theme)" description="What direction would you like to display the dropdown (applicable only for VERTICAL theme)" >
 			<option value="left">Left</option>
 			<option value="right">Right</option>
 		</field>
-				
-				
+
+
 	 <field name="spacer11" type="spacer" class="text" label="" />
 	 <field name="spacer1" type="spacer" class="text" label="SPACER_1" />
-				
+
 
        <field
                     name="menutype"
                     type="menu"
                     label="MENU_NAME"
                     description="MENU_NAME_DESC" />
-		
+
 		<field
                     name="startLevel"
                     type="list"
                     default="1"
                     label="START_LEVEL"
-                    description="START_LEVEL_DESC" 
+                    description="START_LEVEL_DESC"
                 >
                     <option value="1">J1</option>
                     <option value="2">J2</option>
@@ -72,7 +73,7 @@
                     type="list"
                     default="0"
                     label="END_LEVEL"
-                    description="END_LEVEL_DESC" 
+                    description="END_LEVEL_DESC"
                     >
                     <option value="0">JALL</option>
                     <option value="1">J1</option>
@@ -86,7 +87,7 @@
                     <option value="9">J9</option>
                     <option value="10">J10</option>
                 </field>
-				
+
 		<field name="showAllChildren" type="radio" class="btn-group" default="1" label="ALWAYS_SHOW_SUB_MENU_ITEMS_LABEL" description="SHOW_SUB_MENU_ITEMS">
 			<option value="1">Yes</option>
 			<option value="0">No</option>
@@ -98,22 +99,22 @@
 			<option value="0">No</option>
 
 		</field>
-		
+
 			<field name="" type="spacer" default="" label="" description="" />
-			<field name="" type="spacer" default="" label="" description="" />		
-		
+			<field name="" type="spacer" default="" label="" description="" />
+
 		<field name="class_sfx" type="text" default="" label="MENU_CLASS_SUFFIX" description="MENU_CLASS_SUFFIX_DESC" />
 
-		<field name="window_open" type="hidden" default="" label="TARGET_POSITION" description="TARGET_POSITION_DESC"  />	
+		<field name="window_open" type="hidden" default="" label="TARGET_POSITION" description="TARGET_POSITION_DESC"  />
 		<field name="tag_id" type="text" default="" label="MENU_TAG_ID" description="MENU_TAG_ID_DESC" />
 
 	</fieldset>
-	
+
 	<fieldset name="advanced" lable="Advanced Parameters">
 		<field name="moduleclass_sfx" type="text" default="" label="MODULE_CLASS_SUFFIX" description="MODULE_CLASS_SUFFIX_DESC" />
-		
+
 			<field name="" type="spacer" default="" label="" description="" />
-			<field name="" type="spacer" default="" label="" description="" />		
+			<field name="" type="spacer" default="" label="" description="" />
 		<field name="cache" type="list" default="1" label="Caching" description="CACHING_DESC">
 			<option value="1">Use global</option>
 			<option value="0">No caching</option>
@@ -124,9 +125,9 @@
 			<option value="0">No</option>
 		</field>
 			<field name="" type="spacer" default="" label="" description="" />
-			<field name="" type="spacer" default="" label="" description="" />		
+			<field name="" type="spacer" default="" label="" description="" />
 	</fieldset>
 
-</fields>	
+</fields>
 </config>
 </extension>
