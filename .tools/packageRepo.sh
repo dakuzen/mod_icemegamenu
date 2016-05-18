@@ -10,7 +10,7 @@
 
   RPATH="$2"
   if [ ! -d "$RPATH" ]; then
-    if [ -d "./plugin" ]; then
+    if [ -d "./module" ]; then
       RPATH="./"
     else
       echo "Invalid Repo Path";
@@ -30,7 +30,7 @@
   REPONAME=$(basename `pwd`)
   BASENAME=${REPONAME/plg_content/}
   TEMPPATH="$ARPATH../$REPONAME.package/"
-  PACKAGE="$ARPATH../$REPONAME.package.zip"
+  PACKAGE="$ARPATH/$REPONAME.package.zip"
 
 # Echo
 
@@ -72,5 +72,5 @@
 	mkdir -p "$TEMPPATH/"
 	cp -fr "$ARPATH/module/." "$TEMPPATH"
 	cd "$TEMPPATH"
-	zip -ur "../$REPONAME.package.zip" .
+	zip -ur "$PACKAGE" .
 	rm -rf "$TEMPPATH/"
