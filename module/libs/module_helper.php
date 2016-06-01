@@ -114,7 +114,7 @@ class IceModuleHelper
 						
                             if(isset($module) && @$module->id)
 							{
-                                 echo '<div class="icemega_modulewrap" style="'.$style.'">';                                
+                                 echo '<div class="icemega_modulewrap '.json_decode($module->params)->moduleclass_sfx.'" style="'.$style.'">';                                
                                  if($module->showtitle)
                                  {
                                     echo '<span class="iceModuleTile">'.$module->title.'</span>';

@@ -69,6 +69,7 @@ class modIceMegamenuHelper
 		$ids[1] = true;
 		$last 	= null;
 		$unresolved = array();
+		$vertical_direction = $params->get("vertical_direction", "left");
 
 		// pop the first item until the array is empty if there is any item
 		if(is_array($rows))
@@ -97,7 +98,7 @@ class modIceMegamenuHelper
 				}
 			}
 		}
-		return $menu->toXML();
+		return $menu->toXML($vertical_direction);
 	}
 
 	function &getXML($type, &$params, $decorator)
@@ -121,8 +122,9 @@ class modIceMegamenuHelper
 		$xml = new JSimpleXML;
 		$xml->loadString($xmls[$type]);
 		$doc = &$xml->document;
-		$menu	= &JSite::getMenu();
-		$active	= $menu->getActive();
+		$app = JFactory::getApplication();
+		$menu = $app->getMenu();
+		$active = ($menu->getActive()) ? $menu->getActive() : $menu->getDefault();
 		$start	= $params->get('startLevel');
 		$end	= $params->get('endLevel');
 		$sChild	= $params->get('showAllChildren');

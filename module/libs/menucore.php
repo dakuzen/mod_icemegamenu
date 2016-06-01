@@ -123,7 +123,7 @@ class IceMenuTree extends JTree
 	}
 
 
-	function toXML()
+	function toXML($vertical_direction)
 	{
 		
 		// Initialize variables
@@ -171,6 +171,8 @@ class IceMenuTree extends JTree
 				require_once(dirname(__FILE__).DS."module_helper.php");
 				$modHelper = new IceModuleHelper();
 				$content = $modHelper->getContentByPosition($this->_current->getParam("positions",""), $cols, $colWidth, $width, $this->_current->title);
+			case "anch":
+				$content = $this->_current->link;
 			break;
 		}
 		return $content;
@@ -275,10 +277,10 @@ class IceMenuTree extends JTree
 	   if($this->_current->hasChildren()) {$ClassStyleLi = $ClassStyleLi." mzr-drop parent";}
        
        $active_class = "";
-       if($this->_current->id == $this->_currentItemId || $this->_current->id == JRequest::getVar('Itemid'))
+       if (($this->_current->id == $this->_currentItemId) || $this->_current->id == JRequest::getVar('Itemid') || (isset($this->_current->type) && $this->_current->type == 'alias' && ($this->_current->params->get('aliasoptions') == $this->_currentItemId) || $this->_current->params->get('aliasoptions') == JRequest::getVar('Itemid')))
             $active_class = " active";
         
-		$this->_buffer .= '<li id="iceMenu_'.$this->_current->id.'"'.$rel.' class="'.$ClassStyleLi.$active_class.'">';
+		$this->_buffer .= '<li id="iceMenu_'.$this->_current->id.'"'.$rel.' class="'.$ClassStyleLi.$active_class.' '. $this->_current->params->get('menu-anchor_css') .'">';
                                                                   
         $width_parent       = $this->_current->getParam("width",'auto');
         $cols_width_parent  = $this->_current->getParam("colwidth",'auto');    
@@ -394,7 +396,7 @@ class IceMenuTree extends JTree
 						}    
 				   }
 				   else if(($i*$eachCols+1)==$countChild ||($i+1)*$eachCols>=$countChild){ 
-						$arr_cols[$countChild] = intval($countChild); 
+						$arr_cols[$countChild] = $countChild; 
 						 if(is_array($cols_width) && isset($cols_width[$keyCols]))
 						{
 							$cols_width_final[$countChild] =  $cols_width[$keyCols];
@@ -557,13 +559,13 @@ class IceMenuTree extends JTree
 			case 'separator' :
 				//return '<span class="separator">'.$image.$tmp->name.'</span>';
 				
-				if($iParams->get("icemega_subtype") == 'mod' || $iParams->get("icemega_subtype") == 'pos') {
-					//$text  = 'window.addEvent("load", function(){if($(\'item-'.$tmp->id.'\') != null)$(\'item-'.$tmp->id.'\').setStyle(\'display\', \'none\')});';
-					//$document = &JFactory::getDocument();
-					//$document->addScriptDeclaration($text);
+				$tmp->url = "";
+				
+				if($iParams->get("icemega_subtype") == 'anch') {
+					$tmp->url = $iParams->get('icemega_anchorsmenuitem') == $this->_currentItemId ? '#'.$tmp->alias: 'index.php?Itemid='.$iParams->get('icemega_anchorsmenuitem').'#'.$tmp->alias;
+					$tmp->anchor = ' data-anchor="'.$iParams->get('icemega_anchors').'"';
 				}
 				
-				$tmp->url = "";
 				break;
 
 			case 'url' :
@@ -572,19 +574,37 @@ class IceMenuTree extends JTree
 				} else {
 					$tmp->url = $tmp->link;
 				}
+
+				if($iParams->get("icemega_subtype") == 'anch') {
+					$tmp->url = $iParams->get('icemega_anchorsmenuitem') == $this->_currentItemId ? '#'.$tmp->alias: 'index.php?Itemid='.$iParams->get('icemega_anchorsmenuitem').'#'.$tmp->alias;
+					$tmp->anchor = ' data-anchor="'.$iParams->get('icemega_anchors').'"';
+				}
+
 				break;
 			case 'alias':
-				$tmp->url = 'index.php?Itemid='.$tmp->params->get('aliasoptions');
+
+				$tmp->url = 'index.php?Itemid='.$iParams->get('aliasoptions');
+
+				if($iParams->get("icemega_subtype") == 'anch') {
+					$tmp->url = $iParams->get('icemega_anchorsmenuitem') == $this->_currentItemId ? '#'.$tmp->alias: 'index.php?Itemid='.$iParams->get('icemega_anchorsmenuitem').'#'.$tmp->alias;
+					$tmp->anchor = ' data-anchor="'.$iParams->get('icemega_anchors').'"';
+				}
 				break;
 			default :
 				$router = JSite::getRouter();
 				$tmp->url = $router->getMode() == JROUTER_MODE_SEF ? 'index.php?Itemid='.$tmp->id : $tmp->link.'&Itemid='.$tmp->id;
+				if($iParams->get("icemega_subtype") == 'anch') {
+					if($this->_currentItemId == $iParams->get('icemega_anchorsmenuitem')){
+						$tmp->url = '#'.$tmp->alias;
+						$tmp->anchor = ' data-anchor="'.$iParams->get('icemega_anchors').'"';
+					}
+				}
 				break;
 		}
-        $myClass = "iceMenuTitle"; 
+        $myClass = "iceMenuTitle "; 
         if($item->level==1)
         {
-            $myClass = "iceMenuTitle";
+            $myClass = "iceMenuTitle ";
         }
         
 		// Print a link if it exists
@@ -605,11 +625,11 @@ class IceMenuTree extends JTree
 				default:
 				case 0:
 					// _top
-					$data = '<a href="'.$tmp->url.'" class="'.$active_class.' '.$myClass.'">'.$image.$tmp->name.'</a>';
+					$data = '<a href="'.$tmp->url.'" class="'.$active_class.' '.$myClass.'"'.$tmp->anchor.'>'.$image.$tmp->name.'</a>';
 					break;
 				case 1:
 					// _blank
-					$data = '<a href="'.$tmp->url.'" target="_blank"  class="'.$active_class.' '.$myClass.'">'.$image.$tmp->name.'</a>';
+					$data = '<a href="'.$tmp->url.'" target="_blank"  class="'.$active_class.' '.$myClass.'"'.$tmp->anchor.'>'.$image.$tmp->name.'</a>';
 					break;
 				case 2:
 					// window.open
@@ -617,11 +637,11 @@ class IceMenuTree extends JTree
 
 					// hrm...this is a bit dickey
 					$link = str_replace('index.php', 'index2.php', $tmp->url);
-					$data = '<a href="'.$link.'" onclick="window.open(this.href,\'targetWindow\',\''.$attribs.'\');return false;"  class="'.$active_class.' '.$myClass.'">'.$image.$tmp->name.'</a>';
+					$data = '<a href="'.$link.'" onclick="window.open(this.href,\'targetWindow\',\''.$attribs.'\');return false;"  class="'.$active_class.' '.$myClass.'"'.$tmp->anchor.'>'.$image.$tmp->name.'</a>';
 					break;
 			}
 		} else {
-			$data = '<a  class="'.$active_class.' '.$myClass.'">'.$image.$tmp->name.'</a>';
+			$data = '<a  class="'.$active_class.' '.$myClass.'"'.$tmp->anchor.'>'.$image.$tmp->name.'</a>';
 		}
 		
 		return $data;
